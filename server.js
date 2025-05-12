@@ -34,9 +34,34 @@ app.set('view engine', 'ejs');
 app.get('/view/new-meal', (req, res) => {
     res.render('new-meal', { submit_meal_url: '/submit/meal' });
 });
-
 app.get('/view/new-workout', (req, res) => {
     res.render('new-workout', { submit_workout_url: '/submit/workout' });
+});
+app.get('/view/edit-meal/:id', (req, res) => {
+    // Find the meal by ID
+    const res_meal = meals.find(meal => meal.id === parseInt(req.params.id)); // Use find and parse ID
+
+    if (res_meal) {
+        res.render('edit-meal', { meal: res_meal, edit_meal_url: '/meal/' + req.params.id });
+    } else {
+        res.status(404).json({ // Use 404 for not found
+            'error': 'no such meal'
+        });
+    }
+});
+
+// Route to render the edit workout form for a specific workout ID
+app.get('/view/edit-workout/:id', (req, res) => {
+    // Find the workout by ID
+    const workout = workouts.find(w => w.id === parseInt(req.params.id)); // Use find and parse ID
+
+    if (workout) {
+        res.render('edit-workout', { workout: workout, edit_workout_url: '/workout/' + req.params.id });
+    } else {
+        res.status(404).json({ // Use 404 for not found
+            'error': 'no such workout'
+        });
+    }
 });
 
 // POST - Add meal
@@ -50,7 +75,9 @@ app.post('/submit/meal', (req, res) => {
 
 // POST - Add workout
 app.post('/submit/workout', (req, res) => {
-    const { name, duration, caloriesBurned } = req.body;
+    let { name, duration, caloriesBurned } = req.body;
+    duration = parseInt(duration);
+    caloriesBurned = parseInt(caloriesBurned);
 
     if (!name || typeof duration !== 'number' || typeof caloriesBurned !== 'number') {
         return res.status(400).json({ message: 'Invalid workout input. "name", "duration", and "caloriesBurned" are required as numbers.' });

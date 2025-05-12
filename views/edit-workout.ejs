@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diet and Workout - Workout Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Add some basic styling for the message box */
+    #message-box {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      color: white;
+      display: none; /* Hidden by default */
+      z-index: 1000;
+    }
+    .success {
+      background-color: #48bb78; /* Tailwind green-500 */
+    }
+    .error {
+      background-color: #f56565; /* Tailwind red-500 */
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <form id="workoutForm" action="<%= edit_workout_url %>" method="post" class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Edit Workout</h2>
+    <div class="mb-4">
+      <label for="workout-name" class="block text-gray-700 text-sm font-bold mb-2">Workout Name:</label>
+      <input value="<%= workout['name'] %>" type="text" name="name" id="workout-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div class="mb-4">
+      <label for="duration" class="block text-gray-700 text-sm font-bold mb-2">Duration (minutes):</label>
+      <input value="<%= workout['duration'] %>" type="number" name="duration" id="duration" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div class="mb-6">
+      <label for="caloriesBurned" class="block text-gray-700 text-sm font-bold mb-2">Calories Burned:</label>
+      <input value="<%= workout['caloriesBurned'] %>" type="number" name="caloriesBurned" id="caloriesBurned" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div class="flex items-center justify-between">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        Update Workout
+      </button>
+    </div>
+  </form>
+
+  <div id="message-box" class=""></div>
+
+  <script>
+    // Get the form element by its ID
+    const workoutForm = document.getElementById('workoutForm');
+    // Get the message box element
+    const messageBox = document.getElementById('message-box');
+
+    // Add an event listener for the form submission
+    workoutForm.addEventListener('submit', async function(event) {
+      // Prevent the default form submission
+      event.preventDefault();
+
+      // Get the form action URL (where the PUT request will be sent)
+      const url = this.action;
+      // Get the form data using FormData
+      const formData = new FormData(this);
+
+      // Convert form data to a plain object (suitable for JSON body)
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      try {
+        // Send the PUT request using the fetch API
+        const response = await fetch(url, {
+          method: 'PUT', // Specify the HTTP method as PUT
+          headers: {
+            'Content-Type': 'application/json' // Indicate that the request body is JSON
+            // You might need to add other headers here, such as Authorization tokens
+            // depending on your backend's authentication requirements.
+          },
+          body: JSON.stringify(data) // Send the collected form data as a JSON string in the request body
+        });
+
+        // Check if the HTTP response status is OK (status in the range 200-299)
+        if (response.ok) {
+          const result = await response.json(); // Parse the JSON response from the backend
+          console.log('Workout updated successfully:', result);
+          // Display a success message to the user
+          showMessage('Workout updated successfully!', 'success');
+          // You can add code here to redirect the user to another page,
+          // update the UI, or perform any other necessary actions after a successful update.
+          // window.location.href = '/workouts'; // Example: Redirect to the workouts list page
+        } else {
+          // If the response status is not OK, handle the error
+          const error = await response.text(); // Get the error message from the response body
+          console.error('Failed to update workout:', response.status, error);
+          // Display an error message to the user, including the HTTP status code
+          showMessage(`Failed to update workout: ${response.status}`, 'error');
+        }
+      } catch (error) {
+        // Catch any network errors or exceptions that occur during the fetch request
+        console.error('An error occurred:', error);
+        // Display a generic error message to the user
+        showMessage('An error occurred while updating.', 'error');
+      }
+    });
+
+    // Function to display messages in the message box
+    function showMessage(message, type) {
+      messageBox.textContent = message; // Set the message text
+      messageBox.className = ''; // Reset any existing classes
+      messageBox.classList.add(type); // Add the class for styling (success or error)
+      messageBox.style.display = 'block'; // Make the message box visible
+
+      // Hide the message box automatically after 3 seconds
+      setTimeout(() => {
+        messageBox.style.display = 'none';
+      }, 3000); // 3000 milliseconds = 3 seconds
+    }
+  </script>
+
+</body>
+</html>
