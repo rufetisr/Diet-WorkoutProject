@@ -36,7 +36,7 @@ app.get('/view/new-meal', (req, res) => {
 });
 
 app.get('/view/new-workout', (req, res) => {
-    res.render('new-workout', { submit_workout_url: '/submit/workout' });
+    res.render('new-meal', { submit_workout_url: '/submit/workout' });
 });
 
 // POST - Add meal
