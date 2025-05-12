@@ -73,13 +73,29 @@ app.put('/meal/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const { name, calories } = req.body;
 
+    // Basic validation: Check if the body is empty or contains no recognizable update fields
+    const hasUpdateFields = name !== undefined || calories !== undefined;
+    if (!hasUpdateFields) {
+        return res.status(400).json({ message: 'No valid update fields provided (name, calories).' });
+    }
+
     const index = meals.findIndex(m => m.id === id);
     if (index !== -1) {
-        if (name) meals[index].name = name;
-        if (typeof calories === 'number') meals[index].calories = calories;
+        // Update fields only if they are provided in the request body
+        if (name !== undefined) { // Check specifically for undefined to allow setting name to null or empty string
+            meals[index].name = name;
+        }
+        if (calories !== undefined) { // Check specifically for undefined
+            if (typeof calories === 'number') { // Ensure calories is a number
+                 meals[index].calories = calories;
+            } else {
+                 return res.status(400).json({ message: 'Calories must be a number.' });
+            }
+        }
+        // Return the updated meal object
         return res.json(meals[index]);
     } else {
-        return res.status(404).json({ message: 'Meal not found' });
+        return res.status(404).json({ message: 'Meal not found with the given ID.' });
     }
 });
 
@@ -88,17 +104,39 @@ app.put('/workout/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const { name, duration, caloriesBurned } = req.body;
 
+    // Basic validation: Check if the body is empty or contains no recognizable update fields
+     const hasUpdateFields = name !== undefined || duration !== undefined || caloriesBurned !== undefined;
+     if (!hasUpdateFields) {
+        return res.status(400).json({ message: 'No valid update fields provided (name, duration, caloriesBurned).' });
+    }
+
+
     const index = workouts.findIndex(w => w.id === id);
     if (index !== -1) {
-        if (name) workouts[index].name = name;
-        if (typeof duration === 'number') workouts[index].duration = duration;
-        if (typeof caloriesBurned === 'number') workouts[index].caloriesBurned = caloriesBurned;
+        // Update fields only if they are provided in the request body
+        if (name !== undefined) { // Check specifically for undefined
+             workouts[index].name = name;
+        }
+        if (duration !== undefined) { // Check specifically for undefined
+             if (typeof duration === 'number') { // Ensure duration is a number
+                 workouts[index].duration = duration;
+             } else {
+                 return res.status(400).json({ message: 'Duration must be a number.' });
+             }
+        }
+        if (caloriesBurned !== undefined) { // Check specifically for undefined
+             if (typeof caloriesBurned === 'number') { // Ensure caloriesBurned is a number
+                 workouts[index].caloriesBurned = caloriesBurned;
+             } else {
+                 return res.status(400).json({ message: 'CaloriesBurned must be a number.' });
+             }
+        }
+        // Return the updated workout object
         return res.json(workouts[index]);
     } else {
-        return res.status(404).json({ message: 'Workout not found' });
+        return res.status(404).json({ message: 'Workout not found with the given ID.' });
     }
 });
-
 
 // DELETE - Remove meal
 app.delete('/meal/:id', (req, res) => {
