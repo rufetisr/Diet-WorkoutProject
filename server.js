@@ -15,7 +15,7 @@ const { typeDefs, resolvers } = require('./graphql');
 
 
 
-const port = process.env.PORT;
+const port = process.argv[2];                                                                               
 
 // data
 let meals = [];
