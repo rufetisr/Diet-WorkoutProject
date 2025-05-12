@@ -1,5 +1,5 @@
 const express = require('express');
-
+const path = require('path');
 require('dotenv').config();
 const cors = require('cors');
 
@@ -25,8 +25,15 @@ app.use(cors())
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // --- REST ROUTES ---
+
+
+app.get('/view/index', (req, res) => {
+    res.render('index', { title: 'My Express App', message: 'Hello, EJS!' });
+});
 
 // POST - Add meal
 app.post('/submit/meal', (req, res) => {
